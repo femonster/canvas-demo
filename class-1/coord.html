@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>坐标</title>
+    <style>
+    body {
+        background: #dddddd;
+    }
+
+    #canvas {
+        position: absolute;
+        left: 0px;
+        top: 20px;
+        margin: 20px;
+        background: #ffffff;
+        border: thin inset rgba(100, 150, 230, 0.5);
+        cursor: pointer;
+    }
+
+    #readout {
+        margin-top: 10px;
+        margin-left: 15px;
+        color: blue;
+    }
+    </style>
+</head>
+
+<body>
+    <div id='readout'></div>
+    <canvas id="oc" width="600" height="400"></canvas>
+</body>
+<script>
+var oc = document.getElementById('oc');
+var ctx = oc.getContext("2d");
+var spritesheet = new Image();
+
+function windowTocanvas(canvas, x, y) {
+    var bbox = canvas.getBoundingClientRect();
+    // 计算出鼠标在canvas中的坐标，*(canvas.width/bbox.width)是当在绘图宽高和元素宽高不一致时，的缩放比例
+    return {
+        x: x - bbox.left * (canvas.width / bbox.width),
+        y: y - bbox.top * (canvas.height / bbox.height)
+    };
+}
+
+function drawBackground() {
+    var VERTICAL_LINE_SPACING = 12,
+        i = ctx.canvas.height;
+
+    ctx.clearRect(0, 0, oc.width, oc.height);
+    ctx.strokeStyle = 'lightgray';
+    ctx.lineWidth = 0.5;
+
+    while (i > VERTICAL_LINE_SPACING * 4) {
+        ctx.beginPath();
+        ctx.moveTo(0, i);
+        ctx.lineTo(ctx.canvas.width, i);
+        ctx.stroke();
+        i -= VERTICAL_LINE_SPACING;
+    }
+}
+
+function drawSpritesheet() {
+	ctx.drawImage(spritesheet,0,0);
+}
+
+function drawGuidelines(x,y) {
+    ctx.strokeStyle = "rgba(0,0,230,0.8)";
+    ctx.lineWidth = 0.5;
+    drawHorizontalLine(y);
+    drawVerticalLine(x);
+}
+
+function updateReadout(x,y) {
+	readout.innerHTML='('+x.toFixed(0)+','+y.toFixed(0)+')';
+}
+
+function drawHorizontalLine(y) {
+ctx.beginPath();
+ctx.moveTo(0,y+0.5);
+ctx.lineTo(ctx.canvas.width,y+0.5);
+ctx.stroke();
+}
+
+function drawVerticalLine(x) {
+	ctx.beginPath();
+	ctx.moveTo(x+0.5,0);
+	ctx.lineTo(x+0.5,ctx.canvas.height);
+	ctx.stroke();
+}
+
+
+oc.onmousemove=function (e) {
+	var loc = windowTocanvas(oc,e.clientX,e.clientY);
+
+	drawBackground();
+	drawSpritesheet();
+	drawGuidelines(loc.x,loc.y);
+	updateReadout(loc.x, loc.y);
+}
+
+spritesheet.src = '../shared/images/running-sprite-sheet.png';
+spritesheet.onload = function(e) {
+   drawSpritesheet();
+};
+
+drawBackground();
+
+</script>
+
+</html>
