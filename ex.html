@@ -21,11 +21,11 @@
     }
 
     div {
-    	position: fixed;
-    	top: 0;
-    	left: 0;
-    	bottom: 0;
-    	right: 0;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
         width: 50%;
         height: 100px;
         line-height: 100px;
@@ -42,14 +42,16 @@
     <div id="od">0</div>
 </body>
 <script>
-	var n = 0;
-	var od=document.getElementById('od');
-	window.onscroll=function() {
-		n++;
-		od.innerHTML= n;
-	}
+    var n = 0;
+    var od=document.getElementById('od');
+
     window.addEventListener("touchmove",function(e) {
-        console.log("hah");
-    },{passive:true})
+        console.time()
+        let i=1;
+        while(i++<1e8){
+
+        }
+        console.timeEnd();
+    })
 </script>
 </html>
