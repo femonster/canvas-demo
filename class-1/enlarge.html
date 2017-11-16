@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>放大</title>
+	<style>
+		 body {
+            background: rgba(100, 145, 250, 0.3);
+         }
+
+         #canvas {
+            margin-left: 20px;
+            margin-right: 0;
+            margin-bottom: 20px;
+            border: thin solid #aaaaaa;
+            cursor: crosshair;
+            padding: 0;
+         }
+
+         #controls {
+            margin: 20px 0px 20px 20px;
+         }
+
+         #rubberbandDiv {
+            position: absolute;
+            border: 3px solid yellow;
+            cursor: crosshair;
+            display: none;
+         }
+
+	</style>
+</head>
+<body>
+	<div id="controls">
+		<button type="button" id="resetBtn">重置</button>
+	</div>
+	<!-- rubberband 橡皮筋 -->
+	<div id="rubberbandDiv"></div>
+	<canvas id="canvas" width="800" height="520">
+         Canvas not supported
+	</canvas>
+</body>
+<script>
+	var ctx = document.getElementById('canvas').getContext("2d");
+	
+</script>
+</html>

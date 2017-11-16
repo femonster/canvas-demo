@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>画线</title>
+    <style>
+    body {
+        background: #eeeeee;
+    }
+
+    #controls {
+        position: absolute;
+        left: 25px;
+        top: 25px;
+    }
+
+    #canvas {
+        background: #ffffff;
+        cursor: pointer;
+        margin-left: 10px;
+        margin-top: 10px;
+        box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
+    }
+    </style>
+</head>
+
+<body>
+    <canvas id='canvas' width='600' height='400'>
+        Canvas not supported
+    </canvas>
+    <div id='controls'>
+        线颜色:
+        <select id='strokeStyleSelect'>
+            <option value='red'>红色</option>
+            <option value='green'>绿色</option>
+            <option value='blue'>蓝色</option>
+            <option value='orange'>橘色</option>
+            <option value='cornflowerblue' selected>矢车菊蓝</option>
+            <option value='goldenrod'>淡黄色</option>
+            <option value='navy'>海军蓝</option>
+            <option value='purple'>紫色</option>
+        </select>
+        辅助线:
+        <input id='guidewireCheckbox' type='checkbox' checked/>
+        <input id='eraseAllButton' type='button' value='清除' />
+    </div>
+</body>
+<script>
+var canvas = document.querySelector("#canvas"),
+    ctx = canvas.getContext("2d"),
+    clear = document.querySelector("#eraseAllButton"),
+    guideLine = document.querySelector("#guidewireCheckbox"),
+    chooseColor = document.querySelector("#strokeStyleSelect"),
+    drawingSurfaceImageData,
+    mousedown = {},
+    rubberbandRect = {},
+    dragging = false,
+    guidewires=guideLine.checked;
+
+
+function drawGrid(color, sx, sy) {
+    ctx.save();
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.lineWidth = 0.5;
+    ctx.strokeStyle = color;
+
+    for (var i = sx + 0.5; i < ctx.canvas.width; i += sx) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, ctx.canvas.height);
+        ctx.stroke();
+    }
+
+    for (var i = sy + 0.5; i < ctx.canvas.height; i += sy) {
+        ctx.beginPath();
+        ctx.moveTo(0, i);
+        ctx.lineTo(ctx.canvas.width, i);
+        ctx.stroke();
+    }
+
+    ctx.restore();
+}
+
+// 鼠标在canvas中的坐标
+function windowToCanvas(x, y) {
+    var bbox = canvas.getBoundingClientRect();
+    return {
+        x: x - bbox.left * (canvas.width/bbox.width),
+        y:y-bbox.top*(canvas.height/bbox.height)
+    };
+}
+
+function saveDrawingSurface() {
+	drawingSurfaceImageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+}
+
+function restoreDrawingSurface() {
+   ctx.putImageData(drawingSurfaceImageData, 0, 0);
+}
+
+function updateRubberbandRectangle(loc) {
+   rubberbandRect.width  = Math.abs(loc.x - mousedown.x);
+   rubberbandRect.height = Math.abs(loc.y - mousedown.y);
+
+   if (loc.x > mousedown.x) rubberbandRect.left = mousedown.x;
+   else                     rubberbandRect.left = loc.x;
+
+   if (loc.y > mousedown.y) rubberbandRect.top = mousedown.y;
+   else                     rubberbandRect.top = loc.y;
+
+   ctx.save();
+   ctx.strokeStyle = 'red';
+   ctx.restore();
+} 
+
+function drawRubberbandShape(loc) {
+   ctx.beginPath();
+   ctx.moveTo(mousedown.x, mousedown.y);
+   ctx.lineTo(loc.x, loc.y);
+   ctx.stroke();//
+}
+
+function updateRubberband(loc) {
+   updateRubberbandRectangle(loc);
+   drawRubberbandShape(loc);
+}
+
+// 辅助线
+function drawHrizontalLine(y) {
+	ctx.beginPath();
+	ctx.moveTo(0,y+0.5);
+	ctx.lineTo(ctx.canvas.width,y+0.5);
+	ctx.stroke();
+}
+
+function drawVerticalLine(x) {
+	ctx.beginPath();
+	ctx.moveTo(x+0.5,0);
+	ctx.lineTo(x+0.5,ctx.canvas.width);
+	ctx.stroke();
+}
+
+function drawGuidwires(x,y) {
+	ctx.save();
+	ctx.strokeStyle='rgba(0,0,230,0.4)';
+	ctx.lineWidth=0.5;
+	drawHrizontalLine(y);
+	drawVerticalLine(x);
+	ctx.restore();
+}
+
+
+canvas.addEventListener("mousedown",function(e) {
+	var loc = windowToCanvas(e.clientX,e.clientY);
+	e.preventDefault(); 
+
+	saveDrawingSurface();
+	mousedown.x = loc.x;
+	mousedown.y = loc.y;
+	dragging = true;
+});
+
+canvas.addEventListener("mousemove",function(e) {
+	var loc;
+
+	if (dragging) {
+		e.preventDefault();
+		loc=windowToCanvas(e.clientX,e.clientY);
+		// 将前一次的图像保留
+		restoreDrawingSurface();
+		updateRubberband(loc);
+		if (guidewires) {
+			drawGuidwires(loc.x,loc.y);
+		}
+	}
+})
+
+canvas.addEventListener("mouseup",function(e) {
+   loc = windowToCanvas(e.clientX, e.clientY);
+   restoreDrawingSurface();
+   updateRubberband(loc);
+   dragging = false;
+})
+
+clear.addEventListener("click",function() {
+	ctx.clearRect(0,0,canvas.width,canvas.height);
+	drawGrid('lightgray', 10, 10);
+	saveDrawingSurface();
+
+})
+
+chooseColor.onchange = function (e) {
+   ctx.strokeStyle = chooseColor.value;
+};
+
+guideLine.onchange = function (e) {
+   guidewires = guideLine.checked;
+};
+
+drawGrid('lightgray', 10, 10);
+</script>
+
+</html>

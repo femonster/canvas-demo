@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>阴影</title>
+	<style>
+		body {
+            background: rgba(100, 145, 250, 0.3);
+         }
+
+         #canvas {
+            margin-left: 20px;
+            margin-right: 0;
+            margin-bottom: 20px;
+            border: thin solid #aaaaaa;
+            /* cursor: crosshair; */
+            padding: 0;
+         }
+	</style>
+</head>
+<body>
+
+	<canvas id="canvas" width="500" height="500"></canvas>
+
+	<div class="controls">
+		<label for="slx">x偏移量：</label>
+		<input type="range" id="sx" step="1" max="100" min="-100" defaultValue="10" class="rd" />
+		<span class="st sxt">0</span>
+		<br>
+		<label for="slx">y偏移量：</label>
+		<input type="range" id="sy" step="1"  max="100" min="-100" defaultValue="10" class="rd" />
+		<span class="st syt">0</span>
+		<br>
+		<label for="slx">模糊值：</label>
+		<input type="range" id="sf" step="1"  max="100" min="-100" defaultValue="10" class="rd" />
+		<span class="st sft">0</span>
+	</div>
+</body>
+<script>
+	var ctx = document.getElementById('canvas').getContext("2d");
+	// var rd = document.querySelectorAll(".rd");
+	var rangex=document.querySelector("#sx");
+	var rangey=document.querySelector("#sy");
+	var rangef=document.querySelector("#sf");
+	var rx = rangex.value;
+	var ry = rangey.value;
+	var rf = rangef.value;
+	
+	console.log(rx);
+	var st = document.querySelectorAll(".st");
+	rangex.oninput=function() {
+		rx = this.value;
+		st[0].innerText = rx;
+		draw();
+	}
+	rangey.oninput=function() {
+		ry = this.value;
+		st[1].innerText = ry;
+		draw();
+	}
+	rangef.oninput=function() {
+		rf = this.value;
+		st[2].innerText = rf;
+		draw();
+	}
+	function draw() {
+		ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+		var rectColor="rgba(123,234,0,0.5)";
+		ctx.fillStyle=rectColor;
+		ctx.shadowColor="#000";
+		ctx.shadowOffsetX=rx;
+		ctx.shadowOffsetY=ry;
+		ctx.shadowBlur=rf;
+		ctx.fillRect(50,50,300,300);
+	}
+	draw()
+
+</script>
+</html>

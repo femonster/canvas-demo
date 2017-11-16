@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>路径，描边及填充</title>
+    <style>
+    body {
+        background: #dddddd;
+    }
+
+    #canvas {
+        margin-top: 20px;
+        background: #ffffff;
+        border: thin solid #aaaaaa;
+    }
+
+    #text {
+        position: absolute;
+        left: 200px;
+        top: 200px;
+    }
+    </style>
+</head>
+
+<body>
+    <p>文本，矩形与圆弧的描边及填充</p>
+    <canvas id="canvas" width='1050' height='700'></canvas>
+</body>
+<script>
+var ctx = document.getElementById('canvas').getContext("2d");
+// 画格子
+function drawGrid(context, color, stepx, stepy) {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 0.5;
+
+    for (var i = stepx + 0.5; i < ctx.canvas.width; i += stepx) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, ctx.canvas.height);
+        ctx.stroke();
+        ctx.closePath();
+    }
+
+    for (var i = stepy + 0.5; i < ctx.canvas.height; i += stepy) {
+        ctx.beginPath();
+        ctx.moveTo(0, i);
+        ctx.lineTo(ctx.canvas.width, i);
+        ctx.stroke();
+        ctx.closePath();
+    }
+    ctx.restore();
+}
+
+drawGrid(ctx, 'lightgray', 10, 10);
+
+ctx.font="48pt Helvetica";
+ctx.strokeStyle='blue';
+ctx.fillStyle='red';
+ctx.lineWidth = '2';  
+
+ctx.strokeText('Stroke', 60, 110);
+ctx.fillText('Fill', 440, 110);
+ctx.strokeText('Stroke & Fill', 650, 110);
+ctx.fillText('Stroke & Fill', 650, 110);
+
+// 方块
+ctx.lineWidth = '5';
+ctx.beginPath();
+ctx.rect(80,150,150,100);
+ctx.stroke();
+
+ctx.beginPath();
+ctx.rect(400,150,150,100);
+ctx.fill();
+
+ctx.beginPath();
+ctx.rect(750,150,150,100);
+ctx.stroke();
+ctx.fill();
+
+// 弧形
+ctx.beginPath();
+ctx.arc(150, 370, 60, 0, Math.PI*3/2);
+ctx.stroke();
+
+ctx.beginPath();
+ctx.arc(475, 370, 60, 0, Math.PI*3/2);
+ctx.fill();
+
+ctx.beginPath();
+ctx.arc(820, 370, 60, 0, Math.PI*3/2);
+ctx.stroke();
+ctx.fill();
+
+//闭合路径
+ctx.beginPath();
+ctx.arc(150, 550, 60, 0, Math.PI*3/2);
+ctx.closePath();
+ctx.stroke();
+
+ctx.beginPath();
+ctx.arc(475, 550, 60, 0, Math.PI*3/2);
+ctx.closePath();
+ctx.fill();
+
+ctx.beginPath();
+ctx.arc(820, 550, 60, 0, Math.PI*3/2);
+ctx.closePath();
+ctx.stroke();
+ctx.fill();
+
+</script>
+
+</html>

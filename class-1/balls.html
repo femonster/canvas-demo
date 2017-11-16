@@ -1,55 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>跳动的球</title>
     <style>
-    body {
-        background-color: #ddd;
-    }
+        body {
+            background-color: #ddd;
+        }
 
-    #canvas {
-        margin-left: 10px;
-        margin-top: 10px;
-        background: #fff;
-        border: thin solid #aaa;
-    }
+        #canvas {
+            margin-left: 10px;
+            margin-top: 10px;
+            background: #fff;
+            border: thin solid #aaa;
+        }
 
-    #glasspane {
-        position: absolute;
-        left: 50px;
-        top: 50px;
-        padding: 0px 20px 10px 10px;
-        background: rgba(0, 0, 0, 0.3);
-        border: thin solid rgba(0, 0, 0, 0.6);
-        color: #eee;
-        font-family: Droid Sans, Arial, Helvetica, sans-serif;
-        font-size: 12px;
-        cursor: pointer;
-        -webkit-box-shadow: rgba(0, 0, 0, 0.5) 5px 5px 20px;
-        -moz-box-shadow: rgba(0, 0, 0, 0.5) 5px 5px 20px;
-        box-shadow: rgba(0, 0, 0, 0.5) 5px 5px 20px;
-    }
+        #glasspane {
+            position: absolute;
+            left: 50px;
+            top: 50px;
+            padding: 0px 20px 10px 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: thin solid rgba(0, 0, 0, 0.6);
+            color: #eee;
+            font-family: Droid Sans, Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            cursor: pointer;
+            -webkit-box-shadow: rgba(0, 0, 0, 0.5) 5px 5px 20px;
+            -moz-box-shadow: rgba(0, 0, 0, 0.5) 5px 5px 20px;
+            box-shadow: rgba(0, 0, 0, 0.5) 5px 5px 20px;
+        }
 
-    #glasspane h2 {
-        font-weight: normal;
-    }
+        #glasspane h2 {
+            font-weight: normal;
+        }
 
-    #glasspane .title {
-        font-size: 2em;
-        color: rgba(255, 255, 0, 0.8);
-    }
+        #glasspane .title {
+            font-size: 2em;
+            color: rgba(255, 255, 0, 0.8);
+        }
 
-    #glasspane a:hover {
-        color: yellow;
-    }
+        #glasspane a:hover {
+            color: yellow;
+        }
 
-    #glasspane a {
-        text-decoration: none;
-        color: #cccccc;
-        font-size: 3.5em;
-    }
+        #glasspane a {
+            text-decoration: none;
+            color: #cccccc;
+            font-size: 3.5em;
+        }
     </style>
 </head>
 
@@ -61,46 +60,80 @@
     <canvas id="canvas" width="750" height="500"></canvas>
 </body>
 <script>
-	var oc = document.getElementById('canvas'),
-		ctx= oc.getContext("2d"),
-		startBtn=document.getElementById("startBtn"),
-		glasspane=document.getElementById("glasspane"),
-		paused = true,
-		circles = [];
+var oc = document.getElementById('canvas'),
+    ctx = oc.getContext("2d"),
+    startBtn = document.getElementById("startBtn"),
+    glasspane = document.getElementById("glasspane"),
+    paused = true,
+    circles = [];
 
-	startBtn.onclick=function () {
-		paused !=paused;
-		startBtn.innerText=paused?"开始":"暂停";
-	};
+// ctx.lineWidth = 0.5;
+// ctx.font="32pt Ariel";
 
-	setInterval(function () {
-		if (!paused) {
-			ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
-		}
-	},1000/60);
+for (var i = 0; i < 100; i++) {
+    circles[i] = {
+        x:100,
+        y:100,
+        velocityX:3*Math.random(),
+        velocityY:3*Math.random(),
+        radius:50*Math.random(),
+        color: 'rgba(' + (Math.random()*255).toFixed(0) + ', ' +
+                        (Math.random()*255).toFixed(0) + ', ' +
+                        (Math.random()*255).toFixed(0) + ', 1.0)' };
+}
 
-	function adjustPosition(circle) {
-		if (true) {}
-	}
+startBtn.onclick = function() {
+    console.log(paused);
+    paused = !paused;
+    startBtn.innerText = paused ? "开始" : "暂停";
 
-	function drawGrid(ctx,color,stepx,stepy) {
-		ctx.strokeStyle = color;
-		ctx.lineWidth = 0.5;
+};
 
-		for (var i = stepx+0.5; i < ctx.canvas.width; i+=stepx) {
-			ctx.beginPath();
-			ctx.moveTo(i,0);
-			ctx.lineTo(i,ctx.canvas.height);
-			ctx.stroke();
-		}
+setInterval(function() {
+    if (!paused) {
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        drawGrid(ctx, 'lightgray', 10, 10);
+        circles.forEach(function (circle) {
+            ctx.beginPath();
+            ctx.arc(circle.x,circle.y,circle.radius,0,Math.PI*2,false);
+            ctx.fillStyle = circle.color;
+            ctx.fill();
+            adjustPosition(circle);
+        });
+    }
+}, 1000 / 60);
 
-		for (var i = stepy + 0.5; i < ctx.canvas.height; i+=stepy) {
-			ctx.beginPath();
-			ctx.moveTo(0,i);
-			ctx.lineTo(ctx.canvas.width,i);
-			ctx.stroke();
-		}
-	}
-drawGrid(ctx,"lightgray",10,10);
+function adjustPosition(c) {
+    if (c.x + c.velocityX + c.radius > ctx.canvas.width || c.x+c.velocityX<c.radius) {
+        c.velocityX = -c.velocityX;
+    }
+    if (c.y+c.velocityY+c.radius>ctx.canvas.height||c.y+c.velocityY<c.radius) {
+        c.velocityY=-c.velocityY;
+    }
+
+    c.x+=c.velocityX;
+    c.y+=c.velocityY;
+}
+
+function drawGrid(ctx, color, stepx, stepy) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 0.5;
+
+    for (var i = stepx + 0.5; i < ctx.canvas.width; i += stepx) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, ctx.canvas.height);
+        ctx.stroke();
+    }
+
+    for (var i = stepy + 0.5; i < ctx.canvas.height; i += stepy) {
+        ctx.beginPath();
+        ctx.moveTo(0, i);
+        ctx.lineTo(ctx.canvas.width, i);
+        ctx.stroke();
+    }
+}
+drawGrid(ctx, "lightgray", 10, 10);
 </script>
+
 </html>

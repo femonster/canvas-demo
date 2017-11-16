@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>贝赛尔曲线</title>
+    <style>
+    body {
+        background: lightskyblue;
+    }
+
+    #text {
+        position: absolute;
+        left: 43px;
+        top: 15px;
+        display: inline;
+        color: navy;
+    }
+
+    #scaledCanvas {
+        position: absolute;
+        left: 75px;
+        top: 15px;
+    }
+
+    #text {
+        font: 16px Helvetica;
+    }
+    </style>
+</head>
+
+<body>
+    <canvas id='canvas' width='350' height='300'>
+        Canvas not supported
+    </canvas>
+</body>
+<script>
+var ctx = document.querySelector("#canvas").getContext("2d");
+
+ctx.fillStyle = 'cornflowerblue';
+ctx.strokeStyle = 'yellow';
+
+ctx.shadowColor = 'rgba(50,50,50,1.0)';
+ctx.shadowOffsetX = 2;
+ctx.shadowOffsetY = 2;
+ctx.shadowBlur = 4;
+
+ctx.lineWidth = 20;
+ctx.lineCap = 'round';
+
+ctx.beginPath();
+ctx.moveTo(120.5, 130);
+ctx.quadraticCurveTo(150.8, 130, 160.6, 150.5);
+ctx.quadraticCurveTo(190, 250.0, 210.5, 160.5);
+ctx.quadraticCurveTo(240, 100.5, 290, 70.5);
+ctx.stroke();
+</script>
+
+</html>
