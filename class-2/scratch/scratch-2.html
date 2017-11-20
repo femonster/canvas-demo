@@ -96,7 +96,7 @@
 </head>
 
 <body>
-	<h2>destination-out实现</h2>
+	<h2>clip()实现</h2>
 	<img src="img/share.png" alt="刮刮卡" class="share" />
     <div class="info" id="prize">
         <span id="prompt">想什么呢你</span>
@@ -111,10 +111,14 @@
 	var prize = document.querySelector("#prize");
 	var prompt= document.querySelector("#prompt");
 	var endTxt=document.querySelector(".endTxt");
-	ctx.fillStyle = "#D1D1D1";
-	ctx.fillRect(0,0,oc.width,oc.height);
+	var drawing = false;
+	var hasGift = false;
+	var radius = 25;
 	var ratew = 0;
 	var rateh = 0;
+
+	ctx.fillStyle = "#D1D1D1";
+	ctx.fillRect(0,0,oc.width,oc.height);
 
 	function windowToCanvas(x, y) {
 		var canvas = document.getElementById("canvas");
@@ -125,43 +129,18 @@
 	    };
 	}
 
-	// 在与源不重叠的区域上保留目标。其他部分都变成透明的。
-	ctx.globalCompositeOperation = 'destination-out';
-
-	var hasgift = false;
-
-	oc.addEventListener("touchstart",function(e) {
-		e.preventDefault();
-		var touch = e.touches[0];
-		judge(touch);
-	})
-
-	oc.addEventListener("touchmove",function(e) {
-		if(!hasgift){
-			var grandom = Math.random();
-			if (grandom>=0.7) {
-				prompt.innerText="恭喜你，中奖了";
-			}else{
-				prompt.innerText="谢谢惠顾";
-			}
-			hasgift = true;
-		}
-		e.preventDefault();
-		var touch = e.touches[0];
-		judge(touch);
-	});
-
-	
-
-	function judge(touch) {
+	function drawCanvas(x,y) {
+		ctx.save();
 		ctx.beginPath();
-		var cd = windowToCanvas(touch.pageX,touch.pageY);
-		ctx.arc(cd.x,cd.y,20,0,Math.PI*2);
-		ctx.closePath();
-		ctx.fillStyle="red";
-		ctx.fill();
-		var imgData = ctx.getImageData(0,0,oc.width,oc.height);
 
+		// ctx.fillStyle="red";
+		ctx.arc(x,y,radius,0,Math.PI*2,false);
+		// ctx.fill();
+		ctx.clip();
+		ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+		ctx.restore();
+
+		var imgData = ctx.getImageData(0,0,oc.width,oc.height);
 		var pixelsArr = imgData.data; //得到像素的字节数据
 		var loop = pixelsArr.length; 
 		var transparent = 0;//记录已经变成透明的像素点的数量
@@ -177,6 +156,37 @@
 			endTxt.innerText="刮奖结束";
 		}
 	}
+
+	oc.addEventListener("touchstart",function(e) {
+		var touch = e.touches[0];
+		var first = windowToCanvas(touch.pageX,touch.pageY);
+		console.log(first.x,first.y);
+		drawCanvas(first.x,first.y);
+		drawing = true;
+	})
+
+	oc.addEventListener("touchmove",function(e) {
+
+		if (!hasGift) {
+			var grandom = Math.random();
+			if (grandom>=0.7) {
+				prompt.innerText="恭喜你中奖了";
+			}else{
+				prompt.innerText="谢谢惠顾";
+			}
+			hasGift = true;
+		}
+
+		var touch = e.touches[0];
+		if (drawing) {
+			var move = windowToCanvas(touch.pageX,touch.pageY);
+			drawCanvas(move.x,move.y);
+		}
+	})
+
+	oc.addEventListener("touchend",function(e) {
+		drawing = false;
+	})
 
 
 </script>
