@@ -41,7 +41,22 @@
 	</canvas>
 </body>
 <script>
-	var ctx = document.getElementById('canvas').getContext("2d");
+   var oc = document.getElementById('canvas'),
+       ctx= oc.getContext("2d"),
+       rubberbandDiv = document.getElementById("rubberbandDiv"),
+       resetBtn = document.getElementById("resetBtn"),
+       oImg = new Image(),
+       mousedown = {},
+       rubberbandRectangle={},
+       dragging = false;
+
+   function rubberbandStart(x,y) {
+      
+   }
+
+   function rubberbandStretch(x,y) {
+      
+   }
 	
 </script>
 </html>

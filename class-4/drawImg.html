@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>drawImg</title>
+	<style>
+	body{
+        background: #eeeeee;
+
+	}
+    #canvas {
+        margin-left: 10px;
+        margin-top: 10px;
+        border: 1px solid cornflowerblue;
+        border: thin solid #aaaaaa;
+        box-shadow: rgba(200, 200, 255, 0.9) 5px 5px 10px;
+    }
+    </style>
+</head>
+<body>
+	<canvas id="canvas" width="813" height="578"></canvas>
+</body>
+<script>
+	var oc = document.getElementById('canvas');
+	ctx = oc.getContext("2d");
+	var oImg = new Image();
+	oImg.src="../shared/images/arch.png";
+	oImg.onload=function() {
+		ctx.drawImage(oImg,0,0);
+	}
+</script>
+</html>

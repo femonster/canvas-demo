@@ -1,25 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-	<meta charset="UTF-8">
-	<title>globalCompositeOperation</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>刮刮乐</title>
+    <script>
+	    //适配
+	    window.onresize = r;
+
+	    function r(resizeNum) {
+	        //核心适配代码
+	        var winW = window.innerWidth;
+	        document.getElementsByTagName("html")[0].style.fontSize = winW * 0.15625 + "px";
+	        //核心适配代码
+	        if (winW > window.screen.width && resizeNum <= 10) {
+	            setTimeout(function() {
+	                r(++resizeNum)
+	            }, 100);
+	        } else {
+	            document.getElementsByTagName("body")[0].style.opacity = 1;
+	            var pwidth = parseInt(window.getComputedStyle(canvas, null).width);
+	            var pheight = parseInt(window.getComputedStyle(canvas, null).height);
+	            var cwidth = parseInt(canvas.width);
+	            var cheigth = parseInt(canvas.height);
+	            ratew = cwidth / pwidth;
+	            rateh = cheigth / pheight;
+	        }
+	    }
+	    setTimeout(function() {
+	        r(0)
+	    }, 100);
+    </script>
+    <style>
+    	*{
+	    	padding: 0;
+	    	margin: 0;
+	    	list-style: none;
+	    }
+	    body{
+	    	background: #df412b;
+	    	position: relative;
+	    	text-align: center;
+	    	font-size: 0.16rem;
+	    }
+		 body h2{
+		 	font-size: 0.4rem;
+		 	text-align: center;
+		 	font-weight: bold;
+		 }
+		 .share{
+			
+			padding: 1.5rem 0; 
+		 }
+		 .info{
+		 	width: 100%;
+		 	height: 1.8rem;
+		 	background-image: url('img/ggl.png');
+		 	background-repeat: no-repeat;
+		 	background-size: contain;
+		 	position: relative;
+		 }
+		 .info span{
+		 	z-index: 1;
+		 	position: absolute;
+		 	left: 50%;
+		 	transform: translate(-50%, 50%);
+		 }
+		 #prompt{
+		 	font-size: 0.4rem;
+		 }
+		 .info .btn{
+		 	width: 50%;
+		 	height: 0.5rem;
+		 	line-height: 0.5rem;
+		 	background-color: #df412b;
+		 	color: #fff;
+		 	border-radius: 5px;
+		 	top: 0.75rem;
+		 }
+		 #canvas{
+		 	z-index: 2;
+		 	position: absolute;
+		 	top: 4%;
+		 	left: 4%;
+		 	width: 92%;
+		 	height: 84%;
+		 }
+		 .endTxt{
+		 	width: 100%;
+		 	font-size: 0.5rem;
+		 	text-align: center;
+		 }
+    </style>
 </head>
+
 <body>
-	<canvas id="canvas" width="400" height="500"></canvas>
+	<h2>destination-out实现</h2>
+	<img src="img/share.png" alt="刮刮卡" class="share" />
+    <div class="info" id="prize">
+        <canvas id="canvas"></canvas>
+    </div>
+    <div class="endTxt"></div>
 </body>
 <script>
-	var oc = document.getElementById('canvas');
-	var ctx= oc.getContext("2d");
 
+	var oc = document.getElementById("canvas"); 
+	var ctx = oc.getContext("2d");
+	var prize = document.querySelector("#prize");
+	var prompt= document.querySelector("#prompt");
+	var endTxt=document.querySelector(".endTxt");
+	ctx.fillStyle = "#D1D1D1";
+	ctx.fillRect(0,0,oc.width,oc.height);
+	var ratew = 0;
+	var rateh = 0;
 
+	function windowToCanvas(x, y) {
+		var canvas = document.getElementById("canvas");
+	    var bbox = canvas.getBoundingClientRect();
+	    return {
+	        x: (x - bbox.left) *ratew,
+	        y: (y - bbox.top)*rateh
+	    };
+	}
 
-	// ctx.arc(10,10,25,0,Math.PI*2,false);
-	// ctx.fillStyle="rgb(63,169,245)";
-	// ctx.fillRect(50,50,100,100);
+	// 在与源不重叠的区域上保留目标。其他部分都变成透明的。
+	ctx.globalCompositeOperation = 'destination-out';
 
-	// ctx.globalCompositeOperation="destination-out";
+	var hasgift = false;
+
+	oc.addEventListener("touchstart",function(e) {
+		e.preventDefault();
+		var touch = e.touches[0];
+		judge(touch);
+	})
+
+	oc.addEventListener("touchmove",function(e) {
+		if(!hasgift){
+			ctx.font="20px Georgia";
+
+			var grandom = Math.random();
+			if (grandom>=0.7) {
+				ctx.fillStyle="#000";
+				ctx.fillText("恭喜你，中奖了",100,50);
+			}else{
+				ctx.fillStyle="#000";
+				ctx.fillText("谢谢惠顾",100,50);
+			}
+			hasgift = true;
+		}
+		e.preventDefault();
+		var touch = e.touches[0];
+		judge(touch);
+	});
+
 	
-	// ctx.fillStyle="rgb(255,123,172)";
-	// ctx.fillRect(100,100,100,100);
+
+	function judge(touch) {
+		ctx.beginPath();
+		var cd = windowToCanvas(touch.pageX,touch.pageY);
+		ctx.arc(cd.x,cd.y,20,0,Math.PI*2);
+		ctx.closePath();
+		ctx.fillStyle="red";
+		ctx.fill();
+		var imgData = ctx.getImageData(0,0,oc.width,oc.height);
+
+		var pixelsArr = imgData.data; //得到像素的字节数据
+		var loop = pixelsArr.length; 
+		var transparent = 0;//记录已经变成透明的像素点的数量
+		for (var i = 0; i < loop; i+=4) {
+			var alpha = pixelsArr[i+3];//获取每个像素的透明度数值
+			if (alpha<10) {
+				transparent++;
+			}
+		}
+
+		var per = transparent/(loop/4);//计算透明像素在所有像素点中所占比例
+		if (per>0.6) {
+			endTxt.innerText="刮奖结束";
+		}
+	}
+
+
 </script>
 </html>
