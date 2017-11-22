@@ -50,13 +50,104 @@
        rubberbandRectangle={},
        dragging = false;
 
-   function rubberbandStart(x,y) {
-      
+   function rStart(x,y) {
+      mousedown.x = x;
+      mousedown.y = y;
+
+      rubberbandRectangle.left = mousedown.x;
+      rubberbandRectangle.top  = mousedown.y;
+
+      moveDiv();
+      showDiv();
+      dragging = true;
    }
 
-   function rubberbandStretch(x,y) {
-      
+   function rDrag(x,y) {
+      rubberbandRectangle.left = x < mousedown.x ? x : mousedown.x;
+      rubberbandRectangle.top  = y < mousedown.y ? y : mousedown.y;
+
+      rubberbandRectangle.width = Math.abs(x - mousedown.x);
+      rubberbandRectangle.height= Math.abs(y - mousedown.y);
+
+      moveDiv();
+      resizeDiv();
    }
+
+   function rEnd() {
+     var bbox = canvas.getBoundingClientRect();
+     try{
+      ctx.drawImage(oc,
+                    rubberbandRectangle.left - bbox.left,
+                    rubberbandRectangle.top  - bbox.top,
+                    rubberbandRectangle.width,
+                    rubberbandRectangle.height,
+                    0,0,oc.width,oc.height
+                    );
+     }
+     catch(e){
+
+     }
+
+     reset();
+     rubberbandDiv.style.width = 0;
+     rubberbandDiv.style.height= 0;
+
+     hideDiv();
+
+     dragging = false;
+
+   }
+
+   function moveDiv() {
+     rubberbandDiv.style.top = rubberbandRectangle.top + "px";
+     rubberbandDiv.style.left= rubberbandRectangle.left+ "px";
+   }
+
+   function resizeDiv() {
+     rubberbandDiv.style.width = rubberbandRectangle.width + "px";
+     rubberbandDiv.style.height= rubberbandRectangle.height + "px";
+   }
+
+   function showDiv() {
+     rubberbandDiv.style.display = 'inline';
+   }
+
+   function hideDiv() {
+     rubberbandDiv.style.display = 'none';
+   }
+
+   function reset() {
+     rubberbandRectangle = {top:0,left:0,width:0,height:0};
+   }
+
+   canvas.addEventListener("mousedown",function(e) {
+      e.preventDefault();
+      rStart(e.clientX,e.clientY);
+
+   });
+
+   window.addEventListener("mousemove",function(e) {
+      e.preventDefault();
+      dragging && rDrag(e.clientX,e.clientY);
+   });
+
+   window.addEventListener("mouseup",function(e) {
+      e.preventDefault();
+      rEnd();
+   });
+
+   oImg.onload=function() {
+     ctx.drawImage(oImg,0,0,ctx.canvas.width,ctx.canvas.height);
+   };
+
+   resetBtn.addEventListener("click",function(e) {
+      ctx.clearRect(0, 0,ctx.canvas.width,ctx.canvas.height);
+      ctx.drawImage(oImg, 0, 0, ctx.canvas.width, ctx.canvas.height);
+   });
+
+   oImg.src="../shared/images/arch.png";
+
+
 	
 </script>
 </html>
