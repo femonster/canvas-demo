@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<canvas id="canvas" width="600" height="400"></canvas>
+</body>
+<script>
+
+/**
+imageData ImageData ，包含像素值的数组对象。
+dx
+【源图像数据】在目标画布中的位置偏移量（x 轴方向的偏移量）。
+dy
+【源图像数据】在目标画布中的位置偏移量（y 轴方向的偏移量）。
+dirtyX 可选
+在源图像数据中，矩形区域左上角的位置。默认是整个图像数据的左上角（x 坐标）。
+dirtyY 可选
+在源图像数据中，矩形区域左上角的位置。默认是整个图像数据的左上角（y 坐标）。
+dirtyWidth 可选
+在源图像数据中，矩形区域的宽度。默认是图像数据的宽度。
+dirtyHeight 可选
+在源图像数据中，矩形区域的高度。默认是图像数据的高度。
+
+*/
+var oc = document.getElementById('canvas');
+var ctx=oc.getContext("2d");
+var grad  = ctx.createLinearGradient(0,0, 0,100);
+grad.addColorStop(0,'rgb(192, 80, 77)');    
+grad.addColorStop(0.5,'rgb(155, 187, 89)'); 
+grad.addColorStop(1,'rgb(128, 100, 162)');  
+ctx.fillStyle=grad;
+ctx.fillRect(0,0,100,100);
+var imagedata = ctx.getImageData(0,0,100,100);
+// 注意：dx,dy是源图像数据在····
+ctx.putImageData(imagedata, 150, 0, 10, 10, 25, 25);
+</script>
+</html>

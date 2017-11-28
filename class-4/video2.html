@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+
+<head>
+	<meta charset="utf-8">
+    <title>Video逐帧操作</title>
+    <style>
+    body {
+        background: #dddddd;
+    }
+
+    .floatingControls {
+        position: absolute;
+        left: 175px;
+        top: 290px;
+    }
+
+    #canvas {
+        background: #ffffff;
+        border: thin solid #aaaaaa;
+        margin: 10px;
+    }
+
+    #video {
+        display: none;
+    }
+    </style>
+</head>
+
+<body>
+    <video id='video' controls src='../video/test.mp4'></video>
+    <canvas id='canvas' width='480' height='260'>
+        Canvas not supported
+    </canvas>
+    <div id='controls' class='floatingControls'>
+        <input id='controlButton' type='button' value='Play' />
+        <input id='colorCheckbox' type='checkbox' checked> <span style='font-size:1.15em'>颜色</span>
+        <input id='flipCheckbox' type='checkbox'> <span style='font-size:1.15em'>翻转</span>
+    </div>
+</body>
+<script>
+	var oc = document.getElementById('canvas'),
+		ctx= oc.getContext("2d"),
+		video = document.getElementById("video"),
+		octlBtn = document.getElementById("controlButton"),
+		oColor = document.getElementById("colorCheckbox"),
+		oFlip = document.getElementById("flipCheckbox"),
+		offoc = document.createElement("canvas"),
+		offctx= offoc.getContext("2d"),
+		imgData,
+		vWorker = new Worker('webwork.js'),
+		poster = new Image();
+
+	function removeColor() {
+		var data,width,average;
+		imgData = offctx.getImageData(0,0,offoc.width,offoc.height);
+		// vWorker.postMessage(offctx.getImageData(0,0,offoc.width,offoc.height));
+		data = imgData.data;
+		width= data.width;
+
+		for (var i = 0; i < data.length-4; i+=4) {
+			average = (data[i]+data[i+1]+data[i+2]/3);
+			data[i] = average;
+			data[i+1]=average;
+			data[i+2]=average;
+		}
+		// vWorker.onmessage = function(event) {
+		// 	console.log(event.data);
+		// 	offctx.putImageData(event.data,0,0);
+		// }
+		offctx.putImageData(imgData,0,0);
+	}
+
+	function drawFlipped() {
+		ctx.save();
+
+		ctx.translate(oc.width/2,oc.height/2);
+		ctx.rotate(Math.PI);
+		ctx.translate(-oc.width/2,-oc.height/2);
+		ctx.drawImage(offoc,0,0);
+
+		ctx.restore();
+	}
+
+	function nextVideoFrame() {
+		if (video.ended) {
+			octlBtn.value = 'Play';
+		}else{
+			offctx.drawImage(video,0,0,oc.width,oc.height);
+			if (!oColor.checked) {
+				removeColor();
+			}
+
+			if (oFlip.checked) {
+				drawFlipped();
+			}else{
+				ctx.drawImage(offoc,0,0,oc.width,oc.height);
+			}
+			window.requestAnimationFrame(nextVideoFrame);
+		}
+	}
+
+	function startPlaying() {
+		video.play();
+		window.requestAnimationFrame(nextVideoFrame);
+	}
+
+	function stopPlaying() {
+		video.pause();
+	}
+
+	octlBtn.onclick = function (e) {
+		if (octlBtn.value === 'Play') {
+			startPlaying();
+			octlBtn.value = 'Pause';
+		}else{
+			stopPlaying();
+			octlBtn.value = 'Play';
+		}
+	}
+
+	poster.onload = function () {
+		ctx.drawImage(poster,0,0);
+	}
+
+	poster.src="../shared/images/canyon.png";
+
+	offoc.width = oc.width;
+	offoc.height= oc.height;
+
+
+</script>
+</html>

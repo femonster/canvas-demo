@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>背景的滚动(基于时间的运动)</title>
+    <style>
+    body {
+        background: #dddddd;
+    }
+
+    #canvas {
+        position: absolute;
+        top: 30px;
+        left: 10px;
+        background: #ffffff;
+        cursor: crosshair;
+        margin-left: 10px;
+        margin-top: 10px;
+        -webkit-box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
+        -moz-box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
+        box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    input {
+        margin-left: 15px;
+    }
+    </style>
+</head>
+<body>
+    <canvas id='canvas' width='1024' height='512'>
+        Canvas not supported
+    </canvas>
+    <input id='animateButton' type='button' value='Animate' />
+</body>
+<script>
+var oc = document.getElementById('canvas'),
+	ctx= oc.getContext("2d"),
+	oBtn = document.querySelector("#animateButton"),
+	paused = true,
+	lastTime = 0,
+	fps = 0,
+	skyoffset = 0,
+	SKY_VELOCITY = 30, // 30px/s
+	sky = new Image();
+
+function reset() {
+	ctx.clearRect(0,0,oc.width,oc.height);
+}
+
+function calculateFps(now){
+	var fps = 1000/(now - lastTime);
+	lastTime = now;
+	return fps;
+}
+/**
+要实现基于时间的运动，不会出现相同时间内，配置好的设备移动距离远，配置低的设备移动距离近，就需要保证 相同时间内，物体移动的距离是一定的。
+
+假设两台机器，a机器配置低，1s只能刷新2次， 帧速率为f=2fps
+			  b机器配置高，1s能刷新60次，帧速率为f=60fps
+
+	在两台机器上运行游戏，人物需要在1s内移动50px(速度为 v = 50px/s)，则意味着a机器需要在每刷新一次移动 50/2 px, b机器则移动50/60 px
+
+	所以在调用 raf循环动画时，每次移动的距离就是 v/f ,这样 ，就保证了1s内a机器和b机器都走过了 50px
+*/
+function draw() {
+	ctx.save();
+	skyoffset = skyoffset < oc.width?skyoffset + SKY_VELOCITY/fps : 0;
+
+	ctx.save();
+	ctx.translate(-skyoffset,0);
+	ctx.drawImage(sky,0,0);
+	ctx.drawImage(sky,sky.width-2,0);
+	ctx.restore();
+}
+
+function animate(now) {
+	if (now === undefined) { now = +new Date; }
+
+	fps = calculateFps(now);
+	// console.log(fps);
+	if (!paused) {
+		reset();
+		draw();
+	}
+
+	requestAnimationFrame(animate);
+}
+
+oBtn.onclick = function () {
+	paused = !paused;
+	oBtn.value = paused?'Animate':'pause';
+}
+
+sky.src = "../shared/images/sky.png";
+sky.onload = function () {
+	draw();
+}
+requestAnimationFrame(animate);
+</script>
+</html>

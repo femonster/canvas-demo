@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>使用工作线程技术处理图像</title>
+    <style>
+	    body {
+	        background: rgba(100, 145, 250, 0.3);
+	    }
+
+	    #canvas {
+	        margin-left: 20px;
+	        margin-right: 0;
+	        margin-bottom: 20px;
+	        border: thin solid #aaaaaa;
+	        cursor: crosshair;
+	    }
+
+	    #controls {
+	        margin: 20px 0px 20px 20px;
+	    }
+
+	    a {
+	        font: 18px Times Roman;
+	        text-decoration: none;
+	        margin-right: 15px;
+	    }
+    </style>
+</head>
+
+<body>
+    <div id='controls'>
+        <input type='button' id='sunglassButton' value='太阳镜效果' />
+    </div>
+    <canvas id='canvas' width='800' height='520'>
+        Canvas not supported
+    </canvas>
+</body>
+<script>
+	var oImg = new Image(),
+		oc = document.getElementById('canvas'),
+		ctx=oc.getContext("2d"),
+		sBtn=document.getElementById('sunglassButton'),
+		sungOn=false,
+		sungFilter = new Worker('webwork.js');
+
+	function drawOriginalImg() {
+		ctx.drawImage(oImg,0,0,oImg.width,oImg.height,0,0,oc.width,oc.height);
+	}
+	function putSunglassesOn() {
+		sungFilter.postMessage(ctx.getImageData(0,0,oc.width,oc.height));
+
+		sungFilter.onmessage = function (event) {
+			ctx.putImageData(event.data,0,0);
+		}
+	}
+
+	sBtn.addEventListener("click",function() {
+		if (sungOn) {
+			sBtn.value = "太阳镜效果";
+			drawOriginalImg();
+
+		}else{
+			sBtn.value = "还原";
+			putSunglassesOn();
+
+		}
+		sungOn = !sungOn;
+	})
+
+	oImg.src="../shared/images/curved-road.png";
+	oImg.onload=function () {
+		drawOriginalImg();
+	}
+</script>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>淡出</title>
+    <style>
+    body {
+        background: rgba(100, 145, 250, 0.3);
+    }
+
+    #canvas {
+        margin-left: 20px;
+        margin-right: 0;
+        margin-bottom: 20px;
+        border: thin solid #aaaaaa;
+        cursor: crosshair;
+    }
+
+    #controls {
+        margin: 20px 0px 20px 20px;
+    }
+
+    a {
+        font: 18px Times Roman;
+        text-decoration: none;
+        margin-right: 15px;
+    }
+    </style>
+</head>
+
+<body>
+    <div id='controls'>
+         <input type='button' id='fadeButton' value='Fade Out'/>
+      </div>
+      
+      <canvas id='canvas' width='800' height='520'>
+         Canvas not supported
+      </canvas>
+</body>
+<script>
+	var oImg = new Image(),
+		oc = document.getElementById('canvas'),
+		ctx = oc.getContext("2d"),
+		fadeBtn = document.getElementById('fadeButton'),
+		step = 1,
+		interval = null;
+
+	function fadeOut() {
+		step -= 0.02;
+		ctx.clearRect(0,0,oc.width,oc.height);
+		if (step<0) {
+			step = 0;
+			clearInterval(interval);
+		}
+		ctx.globalAlpha = step;
+		ctx.drawImage(oImg,0,0);
+	}
+
+	fadeBtn.onclick=function() {
+		interval = setInterval(fadeOut,1000/60);
+	}
+
+	oImg.src="../shared/images/log-crossing.png";
+	oImg.onload=function() {
+		ctx.drawImage(oImg,0,0);
+	}
+
+</script>
+</html>

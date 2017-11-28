@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>video && canvas</title>
+	      <style> 
+         body {
+            background: #dddddd;
+         }
+
+         #canvas {
+            background: #ffffff;
+            border: thin solid darkgray;
+         }
+
+        
+      </style>
+</head>
+<body>
+	<video id='video' controls="controls">
+       <source src='../video/test.mp4' />
+    </video>
+
+    <canvas id='canvas' width='720' height='405'>
+      Canvas not supported
+    </canvas>
+</body>
+<script>
+	var oc = document.getElementById('canvas'),
+		ctx= oc.getContext("2d"),
+		video = document.getElementById("video");
+
+	function animate(argument) {
+		if (!video.ended) {
+			ctx.drawImage(video,0,0,oc.width,oc.height);
+			window.requestAnimationFrame(animate);
+		}
+	}
+
+	video.oncanplaythrough  = function(e) {
+		console.log("canplaythrough");
+		video.play();
+		window.requestAnimationFrame(animate);
+	}
+</script>
+</html>

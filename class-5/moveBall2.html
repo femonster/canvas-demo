@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>移动的球/计算FPS</title>
+    <style>
+    body {
+        background: #dddddd;
+    }
+
+    #canvas {
+        background: #ffffff;
+        cursor: pointer;
+        margin-left: 10px;
+        margin-top: 10px;
+        -webkit-box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+        -moz-box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+        box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+    }
+
+    #controls {
+        margin-top: 10px;
+        margin-left: 15px;
+    }
+    </style>
+</head>
+
+<body>
+    <div id='controls'>
+        <input id='animateButton' type='button' value='开始' />
+    </div>
+    <canvas id='canvas' width='750' height='500'>
+        Canvas not supported
+    </canvas>
+</body>
+<script>
+var oc = document.querySelector("#canvas"),
+    ctx = oc.getContext("2d"),
+    aniBtn = document.querySelector("#animateButton"),
+    paused = true,
+    lastTime = 0,
+    lastFpsUpdateTime = 0,
+    lastFpsUpdate = 0,
+    frameCount = 0,
+    raf = null,
+    discs = [{
+        x: 150,
+        y: 250,
+        vx: -3.2,
+        vy: 3.5,
+        r: 25,
+        bgcolor: 'rgb(255,255,0)',
+        strokeColor: 'gray'
+    }, {
+        x: 50,
+        y: 150,
+        vx: 2.2,
+        vy: 2.5,
+        r: 25,
+        bgcolor: 'rgb(100,145,230)',
+        strokeColor: 'blue'
+    }, {
+        x: 150,
+        y: 75,
+        vx: 1.2,
+        vy: 1.5,
+        r: 25,
+        bgcolor: 'rgb(255,0,0)',
+        strokeStyle: 'orange'
+    }],
+    numDiscs = discs.length;
+
+function drawGrid(color, sx, sy) {
+    ctx.save();
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.lineWidth = 0.5;
+    ctx.strokeStyle = color;
+
+    for (var i = sx + 0.5; i < ctx.canvas.width; i += sx) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, ctx.canvas.height);
+        ctx.stroke();
+    }
+
+    for (var i = sy + 0.5; i < ctx.canvas.height; i += sy) {
+        ctx.beginPath();
+        ctx.moveTo(0, i);
+        ctx.lineTo(ctx.canvas.width, i);
+        ctx.stroke();
+    }
+
+    ctx.restore();
+}
+
+function update() {
+    var disc = null;
+    for (var i = 0; i < numDiscs; i++) {
+        disc = discs[i];
+
+        if (disc.x + disc.vx + disc.r > ctx.canvas.width || disc.x + disc.vx - disc.r < 0) {
+            disc.vx = -disc.vx;
+        }
+
+        if (disc.y + disc.vy + disc.r > ctx.canvas.height || disc.y + disc.vy - disc.r < 0) {
+            disc.vy = -disc.vy;
+        }
+
+        disc.x += disc.vx;
+        disc.y += disc.vy;
+    }
+}
+
+function drawBall() {
+    var disc = null;
+    for (var i = 0; i < numDiscs; i++) {
+        disc = discs[i];
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(disc.x, disc.y, disc.r, 0, Math.PI * 2, false);
+        ctx.fillStyle = disc.bgcolor;
+        ctx.strokeStyle = disc.strokeColor;
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+    }
+}
+
+// fps = 1s/1帧所耗时间
+function calculateFps() {
+	var now = (+new Date),
+		fps = 1000/(now-lastTime);
+		lastTime = now;
+	return fps;
+}
+
+function animate() {
+	var now = (+new Date),
+		fps = 0;
+    if (!paused) {
+        ctx.clearRect(0, 0, oc.width, oc.height);
+		drawGrid('lightgray', 10, 10);
+        update();
+        drawBall();
+
+        fps = calculateFps();
+        if (now - lastFpsUpdateTime > 1000) {
+        	lastFpsUpdateTime = now;
+        	lastFpsUpdate = fps;
+        }
+        ctx.fillStyle = 'cornflowerblue';
+        ctx.fillText(lastFpsUpdate.toFixed()+" fps",45,50);
+    }
+    raf = requestAnimationFrame(animate);
+}
+
+aniBtn.addEventListener("click", function() {
+    paused = !paused;
+    if (paused) {
+        aniBtn.value = "开始";
+        window.cancelAnimationFrame(raf);
+    } else {
+        raf = requestAnimationFrame(animate);
+        aniBtn.value = "暂停";
+    }
+})
+
+ctx.font = '48px Arial';
+drawGrid('lightgray', 10, 10);
+</script>
+
+</html>
